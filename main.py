@@ -2,29 +2,42 @@ from html.parser import HTMLParser
 from urllib.request import urlopen  
 from urllib import parse
 
+import time
+start = time.process_time()
+
+class MyHTMLParser(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        print("Encountered a start tag:"+ tag)
+
+    def handle_endtag(self, tag):
+        print("Encountered an end tag :"+ tag)
+
+    def handle_data(self, data):
+        print("Encountered some data  :"+ data)
+        
+K = 10
 pages = {}
 content = []
 links = []
-# define topic: Good Cellphones
-def handle_starttag(self, tag, attrs):
-    # We are looking for the begining of a link. Links normally look
-    # like <a href="www.someurl.com"></a>
-    if tag == 'a':
-        for (key, value) in attrs:
-            if key == 'href':
-                # We are grabbing the new URL. We are also adding the
-                # base URL to it. For example:
-                # www.netinstructions.com is the base and
-                # somepage.html is the new URL (a relative URL)
-                #
-                # We combine a relative URL with the base URL to create
-                # an absolute URL like:
-                # www.netinstructions.com/somepage.html
-                newUrl = parse.urljoin(self.baseUrl, value)
-                # And add it to our colection of links:
-                self.links = self.links + [newUrl]
+# define topic: Workout
+
+# search for workout information
+name = 'bodybuilding'
+url = 'https://www.bodybuilding.com/category/workouts'
 
 # get initial web pages
+response = urlopen(url)
+htmlBytes = response.read()
+htmlString = htmlBytes.decode("utf-8")
+
+try:
+
+    print(" **Success!**")
+except:
+    print(" **Failed!**")
+
+parser = MyHTMLParser()
+parser.feed(response)
 
 # check similarity (pick threshold value)
 
@@ -33,59 +46,10 @@ def handle_starttag(self, tag, attrs):
 # stop crawling
 
 # write results
+fileOut = open("results.txt", "w+")
+for key in pages:
+    fileOut.write(key+": "+str(pages[key])+"\n")
+fileOut.close()
 
 # time taken
-
-def getLinks(self, url):
-    self.links = []
-    # Remember the base URL which will be important when creating
-    # absolute URLs
-    self.baseUrl = url
-    # Use the urlopen function from the standard Python 3 library
-    response = urlopen(url)
-    # Make sure that we are looking at HTML and not other things that
-    # are floating around on the internet (such as
-    # JavaScript files, CSS, or .PDFs for example)
-    if response.getheader('Content-Type')=='text/html':
-        htmlBytes = response.read()
-        # Note that feed() handles Strings well, but not bytes
-        # (A change from Python 2.x to Python 3.x)
-        htmlString = htmlBytes.decode("utf-8")
-        self.feed(htmlString)
-        return htmlString, self.links
-    else:
-        return "",[]
-
-# And finally here is our spider. It takes in an URL, a word to find,
-# and the number of pages to search through before giving up
-def spider(url, word, maxPages):  
-    pagesToVisit = [url]
-    numberVisited = 0
-    foundWord = False
-    # The main loop. Create a LinkParser and get all the links on the page.
-    # Also search the page for the word or string
-    # In our getLinks function we return the web page
-    # (this is useful for searching for the word)
-    # and we return a set of links from that web page
-    # (this is useful for where to go next)
-    while numberVisited < maxPages and pagesToVisit != [] and not foundWord:
-        numberVisited = numberVisited +1
-        # Start from the beginning of our collection of pages to visit:
-        url = pagesToVisit[0]
-        pagesToVisit = pagesToVisit[1:]
-        try:
-            print(numberVisited, "Visiting:", url)
-            parser = LinkParser()
-            data, links = parser.getLinks(url)
-            if data.find(word)>-1:
-                foundWord = True
-                # Add the pages that we visited to the end of our collection
-                # of pages to visit:
-                pagesToVisit = pagesToVisit + links
-                print(" **Success!**")
-        except:
-            print(" **Failed!**")
-    if foundWord:
-        print("The word", word, "was found at", url)
-    else:
-        print("Word never found")
+print(time.process_time() - start)
