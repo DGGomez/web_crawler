@@ -5,16 +5,24 @@ from urllib import parse
 import time
 start = time.process_time()
 
-class MyHTMLParser(HTMLParser):
-    def handle_starttag(self, tag, attrs):
-        print("Encountered a start tag:"+ tag)
 
-    def handle_endtag(self, tag):
-        print("Encountered an end tag :"+ tag)
+
+class MyHTMLParser(HTMLParser):
+    count = 0
+    def handle_starttag(self, tag, attrs):
+        if tag == 'span':
+            for attribute in attrs:
+                attribute_name = attribute[0]
+                attribute_value = attribute[1]
+
+                if (attribute_value.find('cms-article-list--article') != -1):
+                    print ("start: " + tag)
+            
+    # def handle_endtag(self, tag):
+    #     # print("End: "+ tag)
 
     def handle_data(self, data):
-        print("Encountered some data  :"+ data)
-        
+        print(data)
 K = 10
 pages = {}
 content = []
@@ -37,7 +45,12 @@ except:
     print(" **Failed!**")
 
 parser = MyHTMLParser()
-parser.feed(response)
+parser.feed("""<html>
+<span>
+    <span class="cms-article-list--article"><a>123</a></span>
+    <span class="cms-article-list--article">456</span>
+</span>
+</html>""")
 
 # check similarity (pick threshold value)
 
