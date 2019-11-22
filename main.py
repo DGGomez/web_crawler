@@ -39,6 +39,7 @@ start = time.process_time()
 
 K = 10
 pages = {}
+robot = {}
 content = []
 links = []
 wordList = []
@@ -70,7 +71,15 @@ try:
     # go through links and check similarity
     for a in links:
         # check robot.txt
-
+        if "https://" in a:
+            url = a[8:].split("/")
+            urlRobot = url[0]+"/robots.txt"
+            # check if already been checked
+            uClient = uReq(urlRobot)
+            page_html = uClient.read()
+            uClient.close()
+        else:
+            continue
         # read data
         uClient = uReq(a)
         page_html = uClient.read()
@@ -78,12 +87,13 @@ try:
 
         # get values
         page_soup = soup(page_html, "html.parser")
-        links = page_soup.findAll("a", href=True)
+        # links = page_soup.findAll("a", href=True)
 
         # check similarity (pick threshold value)
+
         # stop crawling
-
-
+        if len(pages) >= K:
+            break
 except:
     print(" **Failed!**")
 
