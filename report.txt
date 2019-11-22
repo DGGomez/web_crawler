@@ -1,0 +1,13 @@
+ # Focused Web Crawler
+
+ Web Crawler searches for 
+
+ you need to explain the stop criteria you use to stop the crawling process, 
+ 
+ how you follow the Robots Exclusion Protocol, 
+ 
+ how you follow the politeness policy (e.g. time gap between requests to the same site), 
+ 
+ the size of the crawled set of documents (in terms of the number of documents and the total number of bytes), 
+ 
+ the time your program takes to complete the crawling process. (implemented)
