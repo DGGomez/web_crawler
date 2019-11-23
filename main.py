@@ -7,6 +7,7 @@ import math
 import re
 import sys
 import time
+import traceback
 
 def contains_digits(s):
     return any(char.isdigit() for char in s)
@@ -53,21 +54,46 @@ try:
     uClient = uReq(myUrl)
     page_html = uClient.read()
     uClient.close()
-    print(" **Success!**")
+
+    # get robot list for initial website
+    myUrl2 = 'https://www.bodybuilding.com/robots.txt'
+    uClient2 = uReq(myUrl2)
+    page_html2 = uClient2.read()
+    uClient2.close()
+    p = page_html2.splitlines()
+    disallowed = []
+    for i in p:
+        val = str(i)
+        if "Disallow" in val:
+            vals = val.split(" ")
+            if val[1] == " ":
+                continue
+            disallowed.append(vals[1][:-1])
+
+    robot[myUrl2] = disallowed
 
     # generate dictionary
     page_soup = soup(page_html, "html.parser")
     links = page_soup.findAll("a", href=True)
 
-    for i in page_soup:
-        for word in i:
+    for i in page_soup.find_all('div'):
+        words = i.get_text().split(" ")
+        for word in words:
+
+            # filter word
+            if word == '':
+                continue
+            word = re.sub(r'\W+', '', word.rstrip()).lower()
+
+            # store in wordList
             if word in wordList:
                 index = wordList.index(word)
                 numberList[index] += 1
             else:
                 wordList.append(word)
                 numberList.append(1)
-    
+                
+    print(wordList)
     # go through links and check similarity
     for a in links:
         # check robot.txt
@@ -94,8 +120,8 @@ try:
         # stop crawling
         if len(pages) >= K:
             break
-except:
-    print(" **Failed!**")
+except Exception:
+    traceback.print_exc()
 
 # write results
 fileOut = open("results.txt", "w+")
