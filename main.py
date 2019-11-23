@@ -71,7 +71,7 @@ try:
             disallowed.append(vals[1][:-1])
 
     robot[myUrl2] = disallowed
-
+    print(robot)
     # generate dictionary
     page_soup = soup(page_html, "html.parser")
     links = page_soup.findAll("a", href=True)
@@ -91,19 +91,26 @@ try:
                 numberList[index] += 1
             else:
                 wordList.append(word)
-                numberList.append(1)
-                
-    print(wordList)
+                numberList.append(1)       
     # go through links and check similarity
     for a in links:
         # check robot.txt
         if "https://" in a:
             url = a[8:].split("/")
-            urlRobot = url[0]+"/robots.txt"
+            urlRobot = "https://"+url[0]+"/robots.txt"
             # check if already been checked
-            uClient = uReq(urlRobot)
-            page_html = uClient.read()
-            uClient.close()
+            if urlRobot in robot:
+                # if exists check if url in restrictions
+                size = len("https://"+url[0])
+                endpoint = a[size:]
+                # skip if endpoint in robot files
+                if endpoint in robot[urlRobot]:
+                    continue
+            else:
+                # add links if robot not exist    
+                uClient = uReq(urlRobot)
+                page_html = uClient.read()
+                uClient.close()
         else:
             continue
         # read data
