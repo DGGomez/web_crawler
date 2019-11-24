@@ -40,22 +40,31 @@ start = time.process_time()
 
 K = 10
 pages = {}
+oldPages = {}
 robot = {}
+postings = {}
+frequencyList = {}
+
+# web crawler arrays
 content = []
 links = []
-wordList = []
-numberList = []
 visited = []
-postings = {}
-passList = []
-frequencyList = {}
+
+# similarity testing arrays
+wordList = []
+numberLists = []
+numberList = []
+
+#passList = []
 
 # define topic: Workout
 name = 'workout'
-start_url = ["https://www.t-nation.com/","https://www.bodybuilding.com/category/workouts","https://www.muscleandstrength.com/workout-routines"]
-robot_url = ['https://www.t-nation.com/robots.txt', 'https://www.bodybuilding.com/robots.txt', 'https://www.muscleandstrength.com/workout-routines']
+start_url = ["https://www.t-nation.com","https://www.bodybuilding.com/category/workouts","https://www.menshealth.com/uk/workouts"]
+robot_url = ['https://www.t-nation.com/robots.txt', 'https://www.bodybuilding.com/robots.txt', 'https://www.menshealth.com/robots.txt']
+
 # get initial web pages
 try:
+    print("Getting Intial Data")
     for num in range(len(start_url)):
         myUrl = start_url[num]
         uClient = uReq(myUrl)
@@ -74,7 +83,7 @@ try:
             val = str(i)
             if "Disallow" in val:
                 vals = val.split(" ")
-                if val[1] == " ":
+                if len(val[1]) <2:
                     continue
                 disallowed.append(vals[1][:-1])
 
@@ -83,7 +92,31 @@ try:
         # generate dictionary
         page_soup = soup(page_html, "html.parser")
         for i in page_soup.findAll("a", href=True):
-            links.append(i)
+            a = i['href']
+            if "forum" in a:
+                continue
+            if "forums" in a:
+                continue
+            if "search" in a:
+                continue
+            if "facebook" in a:
+                continue  
+            if "pinterest" in a:
+                continue  
+            if "youtube" in a:
+                continue  
+            if "instagram" in a:
+                continue           
+            if "www" not in a:
+                continue            
+            if "//" not in a:
+                continue
+
+            if "http:" in a:
+                continue
+
+            if a not in links:
+                links.append(a)
 
         for i in page_soup.find_all('div'):
             words = i.get_text().split(" ")
@@ -129,8 +162,16 @@ try:
     #         wq.append(0)
 
     # go through links and check similarity
-
     for a in links:
+        # skips
+
+        if "https:" not in a:
+            a = "https:"+a
+
+        if a in visited:
+            continue
+
+        print("Checking link: " + str(a))
         # time delay 1 second
         time.sleep(1)
         # check robot.txt
@@ -196,26 +237,43 @@ try:
 
         # check similarity
         wi = []
-        threshold = 0.75
+        threshold = 0.30
         checkVals = 0
         numberVal = len(numberList)
         # get document list and check k-rating
-        for j in range(len(pageNumberList[i])):
+        for j in range(len(pageNumberList)):
              # contains 90% of query values
             if int(pageNumberList[j]) > 0 and int(numberList[j]) > 0:
                 checkVals+=1
+        print(checkVals/numberVal)
 
         if (checkVals/numberVal) >threshold:
             # add to list
+            print(checkVals/numberVal)
+
             pages[a] = content
+        else:
+            # if we run out of links and still haven't found review old content
+            oldPages[checkVals/numberVal] = [a,content]
 
         # stop crawling
         if len(pages) >= K:
             break
+    
+    # take top k - len(pages) of oldPages
+    if len(pages) != K:
+        for key in sorted(oldPages.keys()):
+            if len(pages) < K:
+                val = oldPages[key][0]
+                cont = oldPages[key][1]
+                pages[val] = cont
+            else:
+                break
 
 except Exception:
     traceback.print_exc()
 
+print(len(links))
 # write results
 fileOut = open("results.txt", "w+")
 for key in pages:
