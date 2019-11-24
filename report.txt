@@ -14,7 +14,7 @@ I go to the robot.txt url and take all the disallowed urls and put them on a don
  
 #how you follow the politeness policy (e.g. time gap between requests to the same site), 
  
-
+1 second time delay between each website check.
 
 #the size of the crawled set of documents (in terms of the number of documents and the total number of bytes), 
  
