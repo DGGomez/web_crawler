@@ -45,6 +45,7 @@ content = []
 links = []
 wordList = []
 numberList = []
+visited = []
 # define topic: Workout
 name = 'bodybuilding'
 
@@ -54,7 +55,7 @@ try:
     uClient = uReq(myUrl)
     page_html = uClient.read()
     uClient.close()
-
+    visited.append(myUrl)
     # get robot list for initial website
     myUrl2 = 'https://www.bodybuilding.com/robots.txt'
     uClient2 = uReq(myUrl2)
@@ -71,7 +72,7 @@ try:
             disallowed.append(vals[1][:-1])
 
     robot[myUrl2] = disallowed
-    print(robot)
+
     # generate dictionary
     page_soup = soup(page_html, "html.parser")
     links = page_soup.findAll("a", href=True)
@@ -111,18 +112,46 @@ try:
                 uClient = uReq(urlRobot)
                 page_html = uClient.read()
                 uClient.close()
+                p = page_html.splitlines()
+                for i in p:
+                    val = str(i)
+                    if "Disallow" in val:
+                        vals = val.split(" ")
+                        if val[1] == " ":
+                            continue
+                        disallowed.append(vals[1][:-1])
+
+                robot[myUrl2] = disallowed
         else:
             continue
+
         # read data
         uClient = uReq(a)
         page_html = uClient.read()
         uClient.close()
+        visited.append(a)
 
         # get values
         page_soup = soup(page_html, "html.parser")
         # links = page_soup.findAll("a", href=True)
 
-        # check similarity (pick threshold value)
+        # check similarity (pick threshold value) and extract info
+        for i in page_soup.find_all('div'):
+            words = i.get_text().split(" ")
+            for word in words:
+
+                # filter word
+                if word == '':
+                    continue
+                word = re.sub(r'\W+', '', word.rstrip()).lower()
+
+                # store in wordList
+                if word in wordList:
+                    index = wordList.index(word)
+                    numberList[index] += 1
+                else:
+                    wordList.append(word)
+                    numberList.append(1)     
 
         # stop crawling
         if len(pages) >= K:

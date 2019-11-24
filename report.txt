@@ -1,13 +1,25 @@
  # Focused Web Crawler
 
- Web Crawler searches for 
+ #Web Crawler searches for 
+ 
+ BodyBuidling information
 
- you need to explain the stop criteria you use to stop the crawling process, 
+ #you need to explain the stop criteria you use to stop the crawling process, 
+
+After K sites over a certain threshold of similarity to original docs it stops.
  
- how you follow the Robots Exclusion Protocol, 
+#how you follow the Robots Exclusion Protocol, 
+
+I go to the robot.txt url and take all the disallowed urls and put them on a don't visit array which stops reading on those URLS
  
- how you follow the politeness policy (e.g. time gap between requests to the same site), 
+#how you follow the politeness policy (e.g. time gap between requests to the same site), 
  
- the size of the crawled set of documents (in terms of the number of documents and the total number of bytes), 
+
+
+#the size of the crawled set of documents (in terms of the number of documents and the total number of bytes), 
  
- the time your program takes to complete the crawling process. (implemented)
+(TBD later)
+
+#the time your program takes to complete the crawling process.
+
+(TBD Later)
