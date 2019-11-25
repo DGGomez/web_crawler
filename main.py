@@ -1,6 +1,7 @@
 from html.parser import HTMLParser  
 from urllib.request import urlopen as uReq
 from urllib import parse
+import urllib.request
 import bs4
 from bs4 import BeautifulSoup as soup
 import math
@@ -8,6 +9,12 @@ import re
 import sys
 import time
 import traceback
+import random
+
+headers = {
+    'User-Agent': 'My User Agent 1.0',
+    'From': 'youremail@domain.com'
+}
 
 def contains_digits(s):
     return any(char.isdigit() for char in s)
@@ -66,14 +73,18 @@ robot_url = ['https://www.t-nation.com/robots.txt', 'https://www.bodybuilding.co
 try:
     print("Getting Intial Data")
     for num in range(len(start_url)):
+        # fetch website
         myUrl = start_url[num]
-        uClient = uReq(myUrl)
+        req = urllib.request.Request(myUrl, headers = headers)
+        uClient = uReq(req)
         page_html = uClient.read()
         uClient.close()
+
         visited.append(myUrl)
         # get robot list for initial website
         myUrl2 = robot_url[num]
-        uClient2 = uReq(myUrl2)
+        req2 = urllib.request.Request(myUrl2, headers = headers)
+        uClient2 = uReq(req2)
         page_html2 = uClient2.read()
         uClient2.close()
         p = page_html2.splitlines()
@@ -162,9 +173,14 @@ try:
     #         wq.append(0)
 
     # go through links and check similarity
-    for a in links:
+    done = 0
+    holder = links
+    while(done <len(links)):
+        done +=1
+        search = random.randint(0,len(holder)-1)
+        a = holder[search]
+        holder.pop(search)
         # skips
-
         if "https:" not in a:
             a = "https:"+a
 
@@ -172,8 +188,8 @@ try:
             continue
 
         print("Checking link: " + str(a))
-        # time delay 1 second
-        time.sleep(1)
+        # time delay 10 second
+        time.sleep(10)
         # check robot.txt
         if "https://" in a:
             url = a[8:].split("/")
@@ -187,8 +203,9 @@ try:
                 if endpoint in robot[urlRobot]:
                     continue
             else:
-                # add links if robot not exist    
-                uClient = uReq(urlRobot)
+                # add links if robot not exist
+                req = urllib.request.Request(urlRobot, headers = headers)
+                uClient = uReq(req)
                 page_html = uClient.read()
                 uClient.close()
                 p = page_html.splitlines()
@@ -205,7 +222,8 @@ try:
             continue
 
         # read data
-        uClient = uReq(a)
+        req = urllib.request.Request(a, headers = headers)
+        uClient = uReq(req)
         page_html = uClient.read()
         uClient.close()
         visited.append(a)
@@ -218,10 +236,9 @@ try:
 
         # extract info
         pageNumberList = [0]* len(wordList)
-        content = []
+        content = ""
         for i in page_soup.find_all('div'):
             # get page info and store
-            content.append(i.get_text())
             words = i.get_text().split(" ")
 
             for word in words:
@@ -229,7 +246,7 @@ try:
                 if word == '':
                     continue
                 word = re.sub(r'\W+', '', word.rstrip()).lower()
-
+                content+=word+" "
                 # store in wordList
                 if word in wordList:
                     index = wordList.index(word)
@@ -245,11 +262,9 @@ try:
              # contains 90% of query values
             if int(pageNumberList[j]) > 0 and int(numberList[j]) > 0:
                 checkVals+=1
-        print(checkVals/numberVal)
 
         if (checkVals/numberVal) >threshold:
             # add to list
-            print(checkVals/numberVal)
 
             pages[a] = content
         else:
@@ -277,7 +292,7 @@ print(len(links))
 # write results
 fileOut = open("results.txt", "w+")
 for key in pages:
-    fileOut.write(key+": "+str(pages[key])+"\n")
+    fileOut.write(str(key)+": "+str(pages[key])+"\n")
 fileOut.close()
 
 # time taken

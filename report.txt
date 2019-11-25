@@ -18,7 +18,7 @@ I go to the robot.txt url and take all the disallowed urls and put them on a don
 
 #the size of the crawled set of documents (in terms of the number of documents and the total number of bytes), 
  
-(TBD later)
+212
 
 #the time your program takes to complete the crawling process.
 
