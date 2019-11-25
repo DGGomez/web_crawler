@@ -22,4 +22,4 @@ I go to the robot.txt url and take all the disallowed urls and put them on a don
 
 #the time your program takes to complete the crawling process.
 
-(TBD Later)
+Average time 14.5 minutes

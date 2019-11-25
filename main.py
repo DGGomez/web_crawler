@@ -174,7 +174,7 @@ try:
 
     # go through links and check similarity
     done = 0
-    holder = links
+    holder = links.copy()
     while(done <len(links)):
         done +=1
         search = random.randint(0,len(holder)-1)
