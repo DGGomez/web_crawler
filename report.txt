@@ -2,7 +2,7 @@
 
  #Web Crawler searches for 
  
- BodyBuidling information
+ workout information
 
  #you need to explain the stop criteria you use to stop the crawling process, 
 
@@ -14,11 +14,11 @@ I go to the robot.txt url and take all the disallowed urls and put them on a don
  
 #how you follow the politeness policy (e.g. time gap between requests to the same site), 
  
-1 second time delay between each website check.
+10 second time delay between each website check. Added header information for web crawler
 
 #the size of the crawled set of documents (in terms of the number of documents and the total number of bytes), 
  
-212
+212 websites, average 83 kb each (based on the content string sizes in result file)
 
 #the time your program takes to complete the crawling process.
 
